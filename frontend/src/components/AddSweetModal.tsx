@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import client from '../api/client';
-import { X, CandyCane, Tag, DollarSign, Package, Sparkles, Loader, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, CandyCane, Tag, DollarSign, Package, Sparkles } from 'lucide-react';
 
 interface Props {
   onClose: () => void;
