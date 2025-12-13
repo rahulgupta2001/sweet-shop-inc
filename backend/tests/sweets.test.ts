@@ -146,3 +146,65 @@ describe('Sweets Endpoints', () => {
     });
   });
 });
+
+describe('GET /api/sweets/search', () => {
+    it('should search sweets by name', async () => {
+      // Create specific sweet
+      const adminToken = generateToken('admin');
+      await request(app).post('/api/sweets').set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: "UniqueSearchItem", category: "Test", price: 10, quantity: 5 });
+
+      const userToken = generateToken('user');
+      const res = await request(app)
+        .get('/api/sweets/search?q=UniqueSearchItem')
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.length).toBeGreaterThan(0);
+      expect(res.body[0].name).toEqual("UniqueSearchItem");
+    });
+  });
+
+  describe('PUT /api/sweets/:id', () => {
+    it('should allow Admin to update a sweet', async () => {
+      // Create sweet
+      const adminToken = generateToken('admin');
+      const createRes = await request(app).post('/api/sweets').set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: "Old Name", category: "Test", price: 10, quantity: 5 });
+      const id = createRes.body.id;
+
+      // Update sweet
+      const res = await request(app)
+        .put(`/api/sweets/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: "New Name", price: 20 });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.name).toEqual("New Name");
+      expect(res.body.price).toEqual(20);
+    });
+  });
+
+  describe('DELETE /api/sweets/:id', () => {
+    it('should allow Admin to delete a sweet', async () => {
+      // Create sweet
+      const adminToken = generateToken('admin');
+      const createRes = await request(app).post('/api/sweets').set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: "To Delete", category: "Test", price: 10, quantity: 5 });
+      const id = createRes.body.id;
+
+      // Delete sweet
+      const res = await request(app)
+        .delete(`/api/sweets/${id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.statusCode).toEqual(200);
+
+      // Verify it's gone
+      const getRes = await request(app)
+        .get(`/api/sweets/search?q=To Delete`) // Re-using search to check existence
+        .set('Authorization', `Bearer ${adminToken}`);
+      
+      expect(getRes.body.length).toEqual(0);
+    });
+  });
