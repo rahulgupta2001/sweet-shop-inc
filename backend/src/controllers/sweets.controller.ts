@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createSweet } from '../services/sweets.service';
+import { createSweet, getAllSweets } from '../services/sweets.service';
 
 export const addSweet = async (req: Request, res: Response) => {
   try {
@@ -19,6 +19,15 @@ export const addSweet = async (req: Request, res: Response) => {
     });
     
     res.status(201).json(sweet);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const listSweets = async (req: Request, res: Response) => {
+  try {
+    const sweets = await getAllSweets();
+    res.status(200).json(sweets);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

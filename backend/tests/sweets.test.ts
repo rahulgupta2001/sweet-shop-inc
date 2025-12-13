@@ -12,6 +12,7 @@ const generateToken = (role: string) => {
 };
 
 describe('Sweets Endpoints', () => {
+  // Clean up before tests start
   beforeAll(async () => {
     await prisma.sweet.deleteMany();
   });
@@ -65,6 +66,39 @@ describe('Sweets Endpoints', () => {
           quantity: 5
         });
 
+      expect(res.statusCode).toEqual(401);
+    });
+  });
+
+  // NEW: GET Tests (This will fail initially -> RED)
+  describe('GET /api/sweets', () => {
+    it('should list all sweets for authenticated users', async () => {
+      // 1. Create a sweet first (as Admin)
+      const adminToken = generateToken('admin');
+      await request(app)
+        .post('/api/sweets')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name: "Test Candy",
+          category: "Candy",
+          price: 1.00,
+          quantity: 100
+        });
+
+      // 2. Fetch list (as User)
+      const userToken = generateToken('user');
+      const res = await request(app)
+        .get('/api/sweets')
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(res.statusCode).toEqual(200);
+      expect(Array.isArray(res.body)).toBeTruthy();
+      expect(res.body.length).toBeGreaterThan(0);
+      expect(res.body[0]).toHaveProperty('name');
+    });
+
+    it('should block unauthenticated requests', async () => {
+      const res = await request(app).get('/api/sweets');
       expect(res.statusCode).toEqual(401);
     });
   });

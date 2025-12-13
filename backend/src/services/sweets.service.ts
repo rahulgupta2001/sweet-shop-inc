@@ -7,3 +7,9 @@ export const createSweet = async (data: { name: string; category: string; price:
     data
   });
 };
+
+export const getAllSweets = async () => {
+  return await prisma.sweet.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
+};
