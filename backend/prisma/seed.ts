@@ -18,12 +18,13 @@ async function main() {
     },
   });
 
-  // 2. Create Sweets (Using loop instead of createMany)
+  // 2. Create Sweets (Using loop)
   const sweets = [
     { name: 'Chocolate Lava Cake', category: 'Cake', price: 5.50, quantity: 10 },
     { name: 'Rasgulla', category: 'Traditional', price: 1.00, quantity: 50 },
     { name: 'Gummy Bears', category: 'Candy', price: 2.50, quantity: 100 },
     { name: 'Macarons', category: 'Cookie', price: 8.00, quantity: 20 },
+    { name: 'Gulab jamun', category: 'Traditional', price: 3.00, quantity: 15 } // Added this based on your previous logs
   ];
 
   for (const sweet of sweets) {
