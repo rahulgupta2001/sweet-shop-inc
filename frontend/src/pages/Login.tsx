@@ -14,7 +14,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => 
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -54,9 +54,9 @@ export default function Login() {
     }
   };
 
-  const handleDemoLogin = async () => {
-    await performLogin('admin@incubyte.com', 'admin123');
-  };
+//   const handleDemoLogin = async () => {
+//     await performLogin('admin@incubyte.com', 'admin123');
+//   };
 
   return (
     // FIX: Added 'py-12' to ensure vertical spacing and removed 'overflow-hidden' from main container
