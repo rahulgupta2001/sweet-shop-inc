@@ -1,6 +1,9 @@
+// frontend/src/components/AddSweetModal.tsx
+
 import { useState } from 'react';
 import client from '../api/client';
-import { X, CandyCane, Tag, DollarSign, Package, Sparkles } from 'lucide-react';
+// Icons imported are: X, CandyCane, Tag, DollarSign, Package, Sparkles
+import { X, CandyCane, Tag, DollarSign, Package, Sparkles } from 'lucide-react'; 
 
 interface Props {
   onClose: () => void;
@@ -17,7 +20,7 @@ export default function AddSweetModal({ onClose, onSuccess }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
-  // Updated categories based on your recent screenshot (e.g., Chocolate, Traditional, Cake, Test, Candy)
+  // Define categories here (ensure they match your data)
   const [categories] = useState([
     'Chocolate',
     'Candy',
@@ -36,31 +39,35 @@ export default function AddSweetModal({ onClose, onSuccess }: Props) {
     if (error) setError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validation
+  const validateForm = () => {
     if (!formData.name.trim()) {
       setError('Please enter a sweet name');
-      return;
+      return false;
     }
     if (!formData.category) {
       setError('Please select a category');
-      return;
+      return false;
     }
     if (!formData.price || parseFloat(formData.price) <= 0) {
       setError('Please enter a valid price');
-      return;
+      return false;
     }
     if (!formData.quantity || parseInt(formData.quantity) < 0) {
       setError('Please enter a valid quantity');
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
     setIsLoading(true);
     setError('');
 
     try {
+      // Send data to backend (without imageUrl)
       await client.post('/sweets', {
         name: formData.name,
         category: formData.category,
@@ -68,15 +75,12 @@ export default function AddSweetModal({ onClose, onSuccess }: Props) {
         quantity: parseInt(formData.quantity)
       });
       
-      // Clear form
+      // Clear form and show success notification via callback
       setFormData({ name: '', category: '', price: '', quantity: '' });
-      
-      // Call success callback to refresh dashboard and show notification
-      onSuccess();
+      onSuccess(); // Triggers dashboard refresh and shows notification
       onClose();
       
     } catch (err: any) {
-      // Catch and display error message properly
       setError(err.response?.data?.error || 'Failed to add sweet. Please try again.');
     } finally {
       setIsLoading(false);
@@ -136,48 +140,32 @@ export default function AddSweetModal({ onClose, onSuccess }: Props) {
           <form onSubmit={handleSubmit} className="relative px-8 pb-10 space-y-6">
             {/* Name Input */}
             <div className="group">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Sweet Name
-              </label>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">Sweet Name</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-pink-500">
                   <CandyCane className="h-5 w-5 text-gray-400 group-focus-within:text-pink-500" />
                 </div>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleChange}
+                <input id="name" name="name" type="text" value={formData.name} onChange={handleChange}
                   className="block w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-                  placeholder="Enter sweet name (e.g., Chocolate Bar)"
-                  disabled={isLoading}
+                  placeholder="Enter sweet name (e.g., Chocolate Bar)" disabled={isLoading}
                 />
               </div>
             </div>
 
             {/* Category Select */}
             <div className="group">
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                Category
-              </label>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">Category</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500">
                   <Tag className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500" />
                 </div>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
+                <select id="category" name="category" value={formData.category} onChange={handleChange}
                   className="block w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none cursor-pointer"
                   disabled={isLoading}
                 >
                   <option value="">Select a category</option>
                   {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
+                    <option key={cat} value={cat}> {cat} </option>
                   ))}
                 </select>
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -190,24 +178,14 @@ export default function AddSweetModal({ onClose, onSuccess }: Props) {
 
             {/* Price Input */}
             <div className="group">
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                Price
-              </label>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">Price</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-green-500">
                   <DollarSign className="h-5 w-5 text-gray-400 group-focus-within:text-green-500" />
                 </div>
-                <input
-                  id="price"
-                  name="price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price}
-                  onChange={handleChange}
+                <input id="price" name="price" type="number" step="0.01" min="0" value={formData.price} onChange={handleChange}
                   className="block w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-                  placeholder="0.00"
-                  disabled={isLoading}
+                  placeholder="0.00" disabled={isLoading}
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <span className="text-gray-400">USD</span>
@@ -217,23 +195,14 @@ export default function AddSweetModal({ onClose, onSuccess }: Props) {
 
             {/* Quantity Input */}
             <div className="group">
-              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
-                Initial Stock Quantity
-              </label>
+              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">Initial Stock Quantity</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-purple-500">
                   <Package className="h-5 w-5 text-gray-400 group-focus-within:text-purple-500" />
                 </div>
-                <input
-                  id="quantity"
-                  name="quantity"
-                  type="number"
-                  min="0"
-                  value={formData.quantity}
-                  onChange={handleChange}
+                <input id="quantity" name="quantity" type="number" min="0" value={formData.quantity} onChange={handleChange}
                   className="block w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-                  placeholder="Enter quantity"
-                  disabled={isLoading}
+                  placeholder="Enter quantity" disabled={isLoading}
                 />
               </div>
             </div>
