@@ -70,7 +70,6 @@ describe('Sweets Endpoints', () => {
     });
   });
 
-  // NEW: GET Tests (This will fail initially -> RED)
   describe('GET /api/sweets', () => {
     it('should list all sweets for authenticated users', async () => {
       // 1. Create a sweet first (as Admin)
@@ -100,6 +99,50 @@ describe('Sweets Endpoints', () => {
     it('should block unauthenticated requests', async () => {
       const res = await request(app).get('/api/sweets');
       expect(res.statusCode).toEqual(401);
+    });
+  });
+
+  // NEW: Purchase Tests (This will fail initially -> RED)
+  describe('POST /api/sweets/:id/purchase', () => {
+    it('should allow user to purchase a sweet and decrease stock', async () => {
+      // 1. Create a sweet with quantity 10
+      const adminToken = generateToken('admin');
+      const sweetRes = await request(app)
+        .post('/api/sweets')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: "Ladoo", category: "Traditional", price: 2.00, quantity: 10 });
+      
+      const sweetId = sweetRes.body.id;
+
+      // 2. Purchase 1 unit
+      const userToken = generateToken('user');
+      const res = await request(app)
+        .post(`/api/sweets/${sweetId}/purchase`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.message).toEqual("Purchase successful");
+      expect(res.body.remainingQuantity).toEqual(9);
+    });
+
+    it('should fail if sweet is out of stock', async () => {
+      // 1. Create sweet with quantity 0
+      const adminToken = generateToken('admin');
+      const sweetRes = await request(app)
+        .post('/api/sweets')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: "Empty Box", category: "Test", price: 1.00, quantity: 0 });
+      
+      const sweetId = sweetRes.body.id;
+
+      // 2. Try to purchase
+      const userToken = generateToken('user');
+      const res = await request(app)
+        .post(`/api/sweets/${sweetId}/purchase`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.error).toEqual("Out of stock");
     });
   });
 });

@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import { addSweet, listSweets } from '../controllers/sweets.controller';
+import { addSweet, listSweets, purchase } from '../controllers/sweets.controller'; // <--- Update import
 import { authenticateToken, isAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Only Admins can add sweets
 router.post('/', authenticateToken, isAdmin, addSweet);
-
-// Authenticated users can view sweets
 router.get('/', authenticateToken, listSweets);
+router.post('/:id/purchase', authenticateToken, purchase); // <--- Add this
 
 export default router;
