@@ -14,14 +14,16 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => 
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    if (error) setError('');
-  };
+ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = e.target;
+
+  setFormData(prev => ({
+    ...prev,
+    [name]: value
+  }));
+
+  if (error) setError('');
+};
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
